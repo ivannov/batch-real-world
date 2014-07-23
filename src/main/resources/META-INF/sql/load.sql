@@ -1,0 +1,2 @@
+INSERT INTO COMPANY("ID", "NAME") VALUES (1, 'Company A');
+INSERT INTO COMPANY("ID", "NAME") VALUES (2, 'Company B');

@@ -1,0 +1,1 @@
+CREATE TABLE COMPANY("ID" INTEGER not null primary key, "NAME" VARCHAR(50));

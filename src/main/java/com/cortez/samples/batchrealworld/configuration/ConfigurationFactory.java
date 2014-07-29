@@ -7,10 +7,7 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.cortez.samples.batchrealworld.entity.FolderType.*;
 
@@ -31,13 +28,23 @@ public class ConfigurationFactory {
         folders.put("batch/work/", Arrays.asList(FI_TMP, FO_TMP));
         folders.put("batch/files/", Arrays.asList(FI, FO));
 
+        List<String> fileExtensions = new ArrayList<>();
+        fileExtensions.add("dat");
+
         configurations.put("folders", folders);
+        configurations.put("fileExtensions", fileExtensions);
     }
 
     @Produces
     @Configuration
     public String getString(InjectionPoint injectionPoint) {
         return (String) configurations.get(injectionPoint.getMember().getName());
+    }
+
+    @Produces
+    @Configuration
+    public <E> List<E> getList(InjectionPoint injectionPoint) {
+        return (List) configurations.get(injectionPoint.getMember().getName());
     }
 
     @Produces

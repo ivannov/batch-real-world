@@ -2,12 +2,13 @@ package com.cortez.samples.batchrealworld.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.io.Serializable;
 
 /**
  * @author Roberto Cortez
  */
 @Entity
-public class Company {
+public class Company implements Serializable {
     @Id
     private Integer id;
 

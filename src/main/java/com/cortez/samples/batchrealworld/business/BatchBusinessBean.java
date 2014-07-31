@@ -2,6 +2,7 @@ package com.cortez.samples.batchrealworld.business;
 
 import com.cortez.samples.batchrealworld.configuration.Configuration;
 import com.cortez.samples.batchrealworld.entity.Company;
+import com.cortez.samples.batchrealworld.entity.CompanyFile;
 import com.cortez.samples.batchrealworld.entity.CompanyFolder;
 import com.cortez.samples.batchrealworld.entity.FolderType;
 
@@ -63,23 +64,13 @@ public class BatchBusinessBean {
                             .getResultList();
     }
 
-    @TransactionAttribute(TransactionAttributeType.NEVER)
-    public List<String> findFilesByFolderType(FolderType folderType) {
-        List<CompanyFolder> companyFolders = findCompanyFolders();
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    public void createCompanyFile(CompanyFile companyFile) {
+        entityManager.persist(companyFile);
+    }
 
-        Stream<Collection<File>> files =
-                companyFolders.stream().map(companyFolder -> listFiles(getFile(companyFolder.getPath()),
-                                                                       fileExtensions.stream().toArray(String[]::new),
-                                                                       false));
-
-        Optional<Collection<File>> reduce = files.reduce((files1, files2) -> {
-            files1.addAll(files2);
-            return files1;
-        });
-
-        return reduce.orElseGet(ArrayList::new)
-                     .stream()
-                     .map(File::getPath)
-                     .collect(Collectors.toCollection(ArrayList::new));
+    public List<CompanyFile> findCompanyFiles(Integer companyId) {
+        return entityManager.createQuery("SELECT cf FROM CompanyFile cf WHERE cf.companyId = :companyId")
+                            .setParameter("companyId", companyId).getResultList();
     }
 }

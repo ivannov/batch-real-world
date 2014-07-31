@@ -12,7 +12,7 @@ public class ValidationFileBatchlet extends AbstractBatchlet {
     public String process() throws Exception {
         System.out.println("FileValidationBatchlet.process");
 
-
+        // HEADER:COMPANY_ID, FILE_SEQUENCE, DATE, NUMBER_OF_RECORDS
 
         return "ERROR";
     }

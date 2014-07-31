@@ -1,10 +1,7 @@
 package com.cortez.samples.batchrealworld.batch;
 
 import com.cortez.samples.batchrealworld.business.BatchBusinessBean;
-import com.cortez.samples.batchrealworld.configuration.Configuration;
-import com.cortez.samples.batchrealworld.entity.CompanyFolder;
-import com.cortez.samples.batchrealworld.entity.FolderType;
-import org.apache.commons.io.FileUtils;
+import com.cortez.samples.batchrealworld.entity.CompanyFile;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -22,18 +19,11 @@ import javax.batch.runtime.BatchStatus;
 import javax.batch.runtime.JobExecution;
 import javax.inject.Inject;
 import java.io.File;
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static com.cortez.samples.batchrealworld.batch.BatchTestHelper.keepTestAlive;
-import static org.apache.commons.io.FileUtils.getFile;
-import static org.apache.commons.io.FileUtils.listFiles;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 /**
  * @author Roberto Cortez
@@ -76,21 +66,12 @@ public class JobTest {
 
     @Test
     @InSequence(2)
-    public void testCompanyFolders() throws Exception {
-        List<CompanyFolder> companyFolders = batchBusinessBean.findCompanyFolders();
-        companyFolders.forEach(System.out::println);
-        assertFalse(companyFolders.isEmpty());
-    }
-
-    @Test
-    @InSequence(3)
     public void testProcessJob() throws Exception {
-        Optional<String> anyFile = batchBusinessBean.findFilesByFolderType(FolderType.FI).stream().findAny();
+        Optional<CompanyFile> companyFile = batchBusinessBean.findCompanyFiles(1).stream().findAny();
 
         Properties jobParameters = new Properties();
-        jobParameters.setProperty("companyId", "1");
-        jobParameters.setProperty("fileToProcess", anyFile.get());
-
+        jobParameters.setProperty("companyId", companyFile.get().getCompanyId().toString());
+        jobParameters.setProperty("fileToProcess", companyFile.get().getFilePath());
 
         JobOperator jobOperator = BatchRuntime.getJobOperator();
         Long executionId = jobOperator.start("process-job", jobParameters);

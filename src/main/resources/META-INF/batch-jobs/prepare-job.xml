@@ -1,5 +1,9 @@
 <job id="prepare-job" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0">
-    <step id="folderCreationStep">
+    <step id="folderCreationStep" next="registerCompanyFiles">
         <batchlet ref="folderCreationBatchlet"/>
+    </step>
+
+    <step id="registerCompanyFiles">
+        <batchlet ref="registerCompanyFilesBatchlet"/>
     </step>
 </job>

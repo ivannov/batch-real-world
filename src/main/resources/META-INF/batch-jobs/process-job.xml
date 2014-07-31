@@ -1,0 +1,31 @@
+<job id="process-job" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0">
+
+    <step id="moveFileStep" next="processFileFlow">
+        <batchlet ref="moveFileBatchlet">
+            <properties>
+                <property name="fileToProcess" value="#{jobParameters['fileToProcess']}"/>
+                <property name="companyId" value="#{jobParameters['companyId']}"/>
+            </properties>
+        </batchlet>
+    </step>
+
+    <flow id="processFileFlow">
+        <step id="fileValidationStep">
+            <batchlet ref="validationFileBatchlet"/>
+            <next on="ERROR" to="processInvalidFileStep"/>
+            <next on="*" to="processFileStep"/>
+        </step>
+
+        <step id="processFileStep">
+            <chunk>
+                <reader ref="fileItemReader"/>
+                <processor ref="fileItemProcessor"/>
+                <writer ref="fileItemWriter"/>
+            </chunk>
+        </step>
+
+        <step id="processInvalidFileStep">
+            <batchlet ref="processInvalidFileBatchlet"/>
+        </step>
+    </flow>
+</job>

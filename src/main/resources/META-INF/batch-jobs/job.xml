@@ -1,8 +1,0 @@
-<job id="job" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0">
-    <step id="folderCreationStep" next="moveFilesStep">
-        <batchlet ref="folderCreationBatchlet"/>
-    </step>
-    <step id="moveFilesStep" >
-        <batchlet ref="moveFilesBatchlet"/>
-    </step>
-</job>

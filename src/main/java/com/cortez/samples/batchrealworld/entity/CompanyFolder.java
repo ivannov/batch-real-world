@@ -51,6 +51,15 @@ public class CompanyFolder implements Serializable {
         return id.hashCode();
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("CompanyFolder{");
+        sb.append("id=").append(id);
+        sb.append(", path='").append(path).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
+
     @Embeddable
     public static class CompanyFolderPK implements Serializable {
         @Basic
@@ -96,6 +105,15 @@ public class CompanyFolder implements Serializable {
             int result = companyId.hashCode();
             result = 31 * result + folderType.hashCode();
             return result;
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("CompanyFolderPK{");
+            sb.append("companyId=").append(companyId);
+            sb.append(", folderType=").append(folderType);
+            sb.append('}');
+            return sb.toString();
         }
     }
 }

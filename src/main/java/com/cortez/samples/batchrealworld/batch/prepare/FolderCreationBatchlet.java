@@ -1,4 +1,4 @@
-package com.cortez.samples.batchrealworld.batch;
+package com.cortez.samples.batchrealworld.batch.prepare;
 
 import com.cortez.samples.batchrealworld.business.BatchBusinessBean;
 import com.cortez.samples.batchrealworld.configuration.Configuration;
@@ -10,7 +10,6 @@ import org.apache.commons.io.FileUtils;
 import javax.batch.api.AbstractBatchlet;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.persistence.NoResultException;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -24,6 +23,9 @@ public class FolderCreationBatchlet extends AbstractBatchlet {
     @Inject
     private BatchBusinessBean batchBusinessBean;
 
+    @Inject
+    @Configuration
+    private String batchHome;
     @Inject
     @Configuration
     private Map<String, List<FolderType>> folders;
@@ -44,7 +46,7 @@ public class FolderCreationBatchlet extends AbstractBatchlet {
     }
 
     private void verifyAndCreateFolder(Integer companyId, String folderRoot, FolderType folderType) {
-        File folder = new File(folderRoot + "/" + companyId + "/" + folderType);
+        File folder = new File(batchHome + "/" + folderRoot + "/" + companyId + "/" + folderType);
 
         if (!folder.exists()) {
             try {
@@ -54,10 +56,8 @@ public class FolderCreationBatchlet extends AbstractBatchlet {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else {
-            if (batchBusinessBean.findCompanyFolderById(companyId, folderType) == null) {
-                batchBusinessBean.createCompanyFolder(new CompanyFolder(companyId, folderType, folder.getPath()));
-            }
+        } else if (batchBusinessBean.findCompanyFolderById(companyId, folderType) == null) {
+            batchBusinessBean.createCompanyFolder(new CompanyFolder(companyId, folderType, folder.getPath()));
         }
     }
 }

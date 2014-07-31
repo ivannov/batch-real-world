@@ -1,7 +1,13 @@
 package com.cortez.samples.batchrealworld.batch;
 
+import com.cortez.samples.batchrealworld.business.BatchBusinessBean;
+import com.cortez.samples.batchrealworld.configuration.Configuration;
+import com.cortez.samples.batchrealworld.entity.CompanyFolder;
+import com.cortez.samples.batchrealworld.entity.FolderType;
+import org.apache.commons.io.FileUtils;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.junit.InSequence;
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -14,17 +20,29 @@ import javax.batch.operations.JobOperator;
 import javax.batch.runtime.BatchRuntime;
 import javax.batch.runtime.BatchStatus;
 import javax.batch.runtime.JobExecution;
+import javax.inject.Inject;
 import java.io.File;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static com.cortez.samples.batchrealworld.batch.BatchTestHelper.keepTestAlive;
+import static org.apache.commons.io.FileUtils.getFile;
+import static org.apache.commons.io.FileUtils.listFiles;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author Roberto Cortez
  */
 @RunWith(Arquillian.class)
 public class JobTest {
+    @Inject
+    private BatchBusinessBean batchBusinessBean;
+
     @Deployment
     public static WebArchive createDeployment() {
         File[] requiredLibraries = Maven.resolver().loadPomFromFile("pom.xml")
@@ -39,22 +57,43 @@ public class JobTest {
                                    .addAsResource("META-INF/sql/create.sql")
                                    .addAsResource("META-INF/sql/drop.sql")
                                    .addAsResource("META-INF/sql/load.sql")
-                                   .addAsResource("META-INF/batch-jobs/job.xml");
+                                   .addAsResource("META-INF/batch-jobs/prepare-job.xml")
+                                   .addAsResource("META-INF/batch-jobs/process-job.xml");
         System.out.println(war.toString(true));
         return war;
     }
 
-    /**
-     * In the test, we're just going to invoke the batch execution and wait for completion. To validate the test
-     * expected behaviour we just need to check the Batch Status in the +JbExecution+ object. We should get a
-     * +BatchStatus.COMPLETED+.
-     *
-     * @throws Exception an exception if the batch could not complete successfully.
-     */
     @Test
-    public void testBatchletProcess() throws Exception {
+    @InSequence(1)
+    public void testPrepareJob() throws Exception {
         JobOperator jobOperator = BatchRuntime.getJobOperator();
-        Long executionId = jobOperator.start("job", new Properties());
+        Long executionId = jobOperator.start("prepare-job", new Properties());
+
+        JobExecution jobExecution = keepTestAlive(jobOperator, executionId);
+
+        assertEquals(BatchStatus.COMPLETED, jobExecution.getBatchStatus());
+    }
+
+    @Test
+    @InSequence(2)
+    public void testCompanyFolders() throws Exception {
+        List<CompanyFolder> companyFolders = batchBusinessBean.findCompanyFolders();
+        companyFolders.forEach(System.out::println);
+        assertFalse(companyFolders.isEmpty());
+    }
+
+    @Test
+    @InSequence(3)
+    public void testProcessJob() throws Exception {
+        Optional<String> anyFile = batchBusinessBean.findFilesByFolderType(FolderType.FI).stream().findAny();
+
+        Properties jobParameters = new Properties();
+        jobParameters.setProperty("companyId", "1");
+        jobParameters.setProperty("fileToProcess", anyFile.get());
+
+
+        JobOperator jobOperator = BatchRuntime.getJobOperator();
+        Long executionId = jobOperator.start("process-job", jobParameters);
 
         JobExecution jobExecution = keepTestAlive(jobOperator, executionId);
 

@@ -26,11 +26,12 @@ public class ConfigurationFactory {
 
         Map<String, List<FolderType>> folders = new HashMap<>();
         folders.put("batch/work/", Arrays.asList(FI_TMP, FO_TMP));
-        folders.put("batch/files/", Arrays.asList(FI, FO));
+        folders.put("batch/files/", Arrays.asList(FI, FO, FE));
 
         List<String> fileExtensions = new ArrayList<>();
         fileExtensions.add("dat");
 
+        configurations.put("batchHome", "/Users/radcortez/Documents/Code/personal/samples/batch-real-world");
         configurations.put("folders", folders);
         configurations.put("fileExtensions", fileExtensions);
     }

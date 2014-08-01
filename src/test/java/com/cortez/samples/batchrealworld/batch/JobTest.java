@@ -2,6 +2,8 @@ package com.cortez.samples.batchrealworld.batch;
 
 import com.cortez.samples.batchrealworld.business.BatchBusinessBean;
 import com.cortez.samples.batchrealworld.entity.CompanyFile;
+import com.cortez.samples.batchrealworld.entity.CompanyFolder;
+import org.apache.commons.io.FileUtils;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -10,6 +12,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -19,10 +22,13 @@ import javax.batch.runtime.BatchStatus;
 import javax.batch.runtime.JobExecution;
 import javax.inject.Inject;
 import java.io.File;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 import static com.cortez.samples.batchrealworld.batch.BatchTestHelper.keepTestAlive;
+import static org.apache.commons.io.FileUtils.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -47,7 +53,7 @@ public class JobTest {
                                    .addAsResource("META-INF/sql/create.sql")
                                    .addAsResource("META-INF/sql/drop.sql")
                                    .addAsResource("META-INF/sql/load.sql")
-                                   .addAsResource("META-INF/batch-jobs/prepare-job.xml")
+                                   .addAsResource("META-INF/batch-jobs/prepare-job-test.xml")
                                    .addAsResource("META-INF/batch-jobs/process-job.xml");
         System.out.println(war.toString(true));
         return war;
@@ -57,7 +63,7 @@ public class JobTest {
     @InSequence(1)
     public void testPrepareJob() throws Exception {
         JobOperator jobOperator = BatchRuntime.getJobOperator();
-        Long executionId = jobOperator.start("prepare-job", new Properties());
+        Long executionId = jobOperator.start("prepare-job-test", new Properties());
 
         JobExecution jobExecution = keepTestAlive(jobOperator, executionId);
 
@@ -79,5 +85,15 @@ public class JobTest {
         JobExecution jobExecution = keepTestAlive(jobOperator, executionId);
 
         assertEquals(BatchStatus.COMPLETED, jobExecution.getBatchStatus());
+    }
+
+    @Test
+    @InSequence(3)
+    public void testCleanupResources() {
+        List<CompanyFolder> companyFolders = batchBusinessBean.findCompanyFolders();
+        companyFolders.stream().map(CompanyFolder::getPath).forEach(path -> {
+            System.out.println("Deleting folder " + path);
+            deleteQuietly(getFile(path));
+        });
     }
 }

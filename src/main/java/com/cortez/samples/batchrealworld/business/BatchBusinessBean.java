@@ -1,10 +1,7 @@
 package com.cortez.samples.batchrealworld.business;
 
 import com.cortez.samples.batchrealworld.configuration.Configuration;
-import com.cortez.samples.batchrealworld.entity.Company;
-import com.cortez.samples.batchrealworld.entity.CompanyFile;
-import com.cortez.samples.batchrealworld.entity.CompanyFolder;
-import com.cortez.samples.batchrealworld.entity.FolderType;
+import com.cortez.samples.batchrealworld.entity.*;
 
 import javax.ejb.Local;
 import javax.ejb.Stateless;
@@ -72,5 +69,14 @@ public class BatchBusinessBean {
     public List<CompanyFile> findCompanyFiles(Integer companyId) {
         return entityManager.createQuery("SELECT cf FROM CompanyFile cf WHERE cf.companyId = :companyId")
                             .setParameter("companyId", companyId).getResultList();
+    }
+
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    public void createCompanyData(CompanyData companyData) {
+        entityManager.persist(companyData);
+    }
+
+    public Long countCompanyDate() {
+        return ((Long) entityManager.createQuery("SELECT COUNT(cd) FROM CompanyData cd").getSingleResult());
     }
 }

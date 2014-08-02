@@ -8,7 +8,8 @@ import javax.batch.api.listener.AbstractStepListener;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import static com.cortez.samples.batchrealworld.generator.GenerateTestFile.generateTestFile;
+import static com.cortez.samples.batchrealworld.generator.GenerateTestFile.generateInvalidTestFile;
+import static com.cortez.samples.batchrealworld.generator.GenerateTestFile.generateValidTestFile;
 
 /**
  * @author Roberto Cortez
@@ -21,6 +22,7 @@ public class CreateTestFileStepListener extends AbstractStepListener {
     @Override
     public void beforeStep() throws Exception {
         CompanyFolder companyFolder = batchBusinessBean.findCompanyFolderById(1, FolderType.FI);
-        generateTestFile(companyFolder.getPath() + "/test.dat", companyFolder.getId().getCompanyId(), 1, 100);
+        generateValidTestFile(companyFolder.getPath() + "/valid.dat", companyFolder.getId().getCompanyId(), 1, 100);
+        generateInvalidTestFile(companyFolder.getPath() + "/invalid.dat", companyFolder.getId().getCompanyId(), 1, 100);
     }
 }

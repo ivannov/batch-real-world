@@ -3,7 +3,6 @@ package com.cortez.samples.batchrealworld.batch;
 import com.cortez.samples.batchrealworld.business.BatchBusinessBean;
 import com.cortez.samples.batchrealworld.entity.CompanyFile;
 import com.cortez.samples.batchrealworld.entity.CompanyFolder;
-import org.apache.commons.io.FileUtils;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -12,7 +11,6 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
-import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -25,10 +23,10 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.function.Consumer;
 
 import static com.cortez.samples.batchrealworld.batch.BatchTestHelper.keepTestAlive;
-import static org.apache.commons.io.FileUtils.*;
+import static org.apache.commons.io.FileUtils.deleteQuietly;
+import static org.apache.commons.io.FileUtils.getFile;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -42,7 +40,7 @@ public class JobTest {
     @Deployment
     public static WebArchive createDeployment() {
         File[] requiredLibraries = Maven.resolver().loadPomFromFile("pom.xml")
-                                        .resolve("commons-io:commons-io")
+                                        .resolve("commons-io:commons-io", "org.apache.commons:commons-lang3")
                                         .withTransitivity().asFile();
 
         WebArchive war = ShrinkWrap.create(WebArchive.class)
@@ -73,16 +71,38 @@ public class JobTest {
     @Test
     @InSequence(2)
     public void testProcessJob() throws Exception {
-        Optional<CompanyFile> companyFile = batchBusinessBean.findCompanyFiles(1).stream().findAny();
+        // Valid File
+        Optional<CompanyFile> validCompanyFile =
+                batchBusinessBean.findCompanyFiles(1)
+                                 .stream()
+                                 .filter(filtered -> "valid.dat".equals(filtered.getFilePath()))
+                                 .findAny();
 
         Properties jobParameters = new Properties();
-        jobParameters.setProperty("companyId", companyFile.get().getCompanyId().toString());
-        jobParameters.setProperty("fileToProcess", companyFile.get().getFilePath());
+        jobParameters.setProperty("companyId", validCompanyFile.get().getCompanyId().toString());
+        jobParameters.setProperty("fileToProcess", validCompanyFile.get().getFilePath());
 
         JobOperator jobOperator = BatchRuntime.getJobOperator();
         Long executionId = jobOperator.start("process-job", jobParameters);
-
         JobExecution jobExecution = keepTestAlive(jobOperator, executionId);
+
+        assertEquals(BatchStatus.COMPLETED, jobExecution.getBatchStatus());
+        assertEquals(100L, (long) batchBusinessBean.countCompanyDate());
+
+        // Invalid File
+        Optional<CompanyFile> invalidCompanyFile =
+                batchBusinessBean.findCompanyFiles(1)
+                                 .stream()
+                                 .filter(filtered -> "invalid.dat".equals(filtered.getFilePath()))
+                                 .findAny();
+
+        jobParameters = new Properties();
+        jobParameters.setProperty("companyId", invalidCompanyFile.get().getCompanyId().toString());
+        jobParameters.setProperty("fileToProcess", invalidCompanyFile.get().getFilePath());
+
+        jobOperator = BatchRuntime.getJobOperator();
+        executionId = jobOperator.start("process-job", jobParameters);
+        jobExecution = keepTestAlive(jobOperator, executionId);
 
         assertEquals(BatchStatus.COMPLETED, jobExecution.getBatchStatus());
     }

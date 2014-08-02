@@ -22,15 +22,30 @@
         </step>
 
         <step id="processFileStep">
-            <chunk>
-                <reader ref="fileItemReader"/>
-                <processor ref="fileItemProcessor"/>
+            <chunk item-count="10">
+                <reader ref="fileItemReader">
+                    <properties>
+                        <property name="fileToProcess" value="#{jobParameters['fileToProcess']}"/>
+                        <property name="companyId" value="#{jobParameters['companyId']}"/>
+                    </properties>
+                </reader>
+                <processor ref="fileItemProcessor">
+                    <properties>
+                        <property name="fileToProcess" value="#{jobParameters['fileToProcess']}"/>
+                        <property name="companyId" value="#{jobParameters['companyId']}"/>
+                    </properties>
+                </processor>
                 <writer ref="fileItemWriter"/>
             </chunk>
         </step>
 
         <step id="processInvalidFileStep">
-            <batchlet ref="processInvalidFileBatchlet"/>
+            <batchlet ref="processInvalidFileBatchlet">
+                <properties>
+                    <property name="fileToProcess" value="#{jobParameters['fileToProcess']}"/>
+                    <property name="companyId" value="#{jobParameters['companyId']}"/>
+                </properties>
+            </batchlet>
         </step>
     </flow>
 </job>

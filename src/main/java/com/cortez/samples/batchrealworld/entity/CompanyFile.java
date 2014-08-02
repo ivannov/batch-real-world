@@ -9,8 +9,8 @@ import java.io.Serializable;
 @Entity
 public class CompanyFile implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id")
-    @SequenceGenerator(name = "id", sequenceName = "COMPANYFILEID")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "companyFileId")
+    @SequenceGenerator(name = "companyFileId", sequenceName = "COMPANYFILEID")
     private Integer id;
 
     private Integer companyId;

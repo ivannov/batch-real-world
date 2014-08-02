@@ -42,7 +42,7 @@ public class RegisterCompanyFilesBatchlet extends AbstractBatchlet {
 
     private void registerFile(CompanyFolder inputFolder, File file) {
         System.out.println("Registering file to process " + file);
-        batchBusinessBean.createCompanyFile(new CompanyFile(inputFolder.getId().getCompanyId(), file.getPath()));
+        batchBusinessBean.createCompanyFile(new CompanyFile(inputFolder.getId().getCompanyId(), file.getName()));
     }
 
     private Collection<File> getFiles(CompanyFolder companyFolder) {

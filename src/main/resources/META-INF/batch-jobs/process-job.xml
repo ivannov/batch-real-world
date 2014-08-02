@@ -11,7 +11,12 @@
 
     <flow id="processFileFlow">
         <step id="fileValidationStep">
-            <batchlet ref="validationFileBatchlet"/>
+            <batchlet ref="validationFileBatchlet">
+                <properties>
+                    <property name="fileToProcess" value="#{jobParameters['fileToProcess']}"/>
+                    <property name="companyId" value="#{jobParameters['companyId']}"/>
+                </properties>
+            </batchlet>
             <next on="ERROR" to="processInvalidFileStep"/>
             <next on="*" to="processFileStep"/>
         </step>

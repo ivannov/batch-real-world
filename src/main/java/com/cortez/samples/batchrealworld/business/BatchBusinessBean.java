@@ -8,6 +8,7 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.File;
@@ -27,6 +28,7 @@ import static org.apache.commons.io.FileUtils.listFiles;
  * @author Roberto Cortez
  */
 @SuppressWarnings("unchecked")
+@Named
 @Local
 @Stateless
 @TransactionAttribute(TransactionAttributeType.SUPPORTS)

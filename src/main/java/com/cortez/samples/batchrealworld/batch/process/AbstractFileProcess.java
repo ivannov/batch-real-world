@@ -3,7 +3,8 @@ package com.cortez.samples.batchrealworld.batch.process;
 import com.cortez.samples.batchrealworld.business.BatchBusinessBean;
 import com.cortez.samples.batchrealworld.entity.FolderType;
 
-import javax.batch.api.BatchProperty;
+import javax.annotation.PostConstruct;
+import javax.batch.runtime.context.JobContext;
 import javax.inject.Inject;
 import java.io.File;
 
@@ -13,13 +14,11 @@ import static org.apache.commons.io.FileUtils.getFile;
  * @author Roberto Cortez
  */
 public abstract class AbstractFileProcess {
-    @Inject
-    @BatchProperty(name = "companyId")
     private String companyId;
-    @Inject
-    @BatchProperty(name = "fileToProcess")
     private String fileToProcess;
 
+    @Inject
+    private JobContext jobContext;
     @Inject
     private BatchBusinessBean batchBusinessBean;
 
@@ -35,5 +34,11 @@ public abstract class AbstractFileProcess {
 
     protected File getFolder(FolderType folderType) {
         return getFile(batchBusinessBean.findCompanyFolderById(getCompanyId(), folderType).getPath());
+    }
+
+    @PostConstruct
+    private void init() {
+        companyId = jobContext.getProperties().getProperty("companyId");
+        fileToProcess = jobContext.getProperties().getProperty("fileToProcess");
     }
 }

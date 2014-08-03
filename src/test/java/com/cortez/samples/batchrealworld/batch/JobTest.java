@@ -52,7 +52,8 @@ public class JobTest {
                                    .addAsResource("META-INF/sql/drop.sql")
                                    .addAsResource("META-INF/sql/load.sql")
                                    .addAsResource("META-INF/batch-jobs/prepare-job-test.xml")
-                                   .addAsResource("META-INF/batch-jobs/process-job.xml");
+                                   .addAsResource("META-INF/batch-jobs/process-job.xml")
+                                   .addAsResource("META-INF/batch-jobs/finish-job.xml");
         System.out.println(war.toString(true));
         return war;
     }
@@ -109,6 +110,20 @@ public class JobTest {
 
     @Test
     @InSequence(3)
+    public void testFinishJob() throws Exception {
+        JobOperator jobOperator = BatchRuntime.getJobOperator();
+        Properties jobParameters = new Properties();
+        jobParameters.setProperty("fileType", "xml");
+        jobParameters.setProperty("companyId", "1");
+        Long executionId = jobOperator.start("finish-job", jobParameters);
+
+        JobExecution jobExecution = keepTestAlive(jobOperator, executionId);
+
+        assertEquals(BatchStatus.COMPLETED, jobExecution.getBatchStatus());
+    }
+
+    @Test
+    @InSequence(4)
     public void testCleanupResources() {
         List<CompanyFolder> companyFolders = batchBusinessBean.findCompanyFolders();
         companyFolders.stream().map(CompanyFolder::getPath).forEach(path -> {

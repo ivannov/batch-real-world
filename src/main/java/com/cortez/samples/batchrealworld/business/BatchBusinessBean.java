@@ -11,18 +11,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.apache.commons.io.FileUtils.getFile;
-import static org.apache.commons.io.FileUtils.listFiles;
 
 /**
  * @author Roberto Cortez
@@ -80,5 +69,13 @@ public class BatchBusinessBean {
 
     public Long countCompanyDate() {
         return ((Long) entityManager.createQuery("SELECT COUNT(cd) FROM CompanyData cd").getSingleResult());
+    }
+
+    public List<CompanyData> findCompanyData(Integer companyId, Integer startPosition, Integer maxResults) {
+        return entityManager.createQuery("SELECT cd FROM CompanyData cd WHERE cd.companyId = :companyId")
+                            .setParameter("companyId", companyId)
+                            .setFirstResult(startPosition)
+                            .setMaxResults(maxResults)
+                            .getResultList();
     }
 }

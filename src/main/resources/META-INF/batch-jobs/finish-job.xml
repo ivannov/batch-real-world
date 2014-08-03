@@ -1,0 +1,37 @@
+<job id="finish-job" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0">
+
+    <properties>
+        <property name="fileType" value="#{jobParameters['fileType']}"/>
+    </properties>
+
+    <step id="dummyStep" next="fileTypeWriterDecider">
+        <batchlet ref="dummyBatchlet"/>
+    </step>
+
+    <decision id="fileTypeWriterDecider" ref="fileTypeWriterDecider">
+        <next on="json" to="processDataAsJson"/>
+        <next on="xml" to="processDataAsXml"/>
+    </decision>
+
+    <step id="processDataAsJson">
+        <chunk item-count="1">
+            <reader ref="databaseItemReader">
+                <properties>
+                    <property name="companyId" value="#{jobParameters['companyId']}"/>
+                </properties>
+            </reader>
+            <writer ref="jsonItemWriter"/>
+        </chunk>
+    </step>
+
+    <step id="processDataAsXml">
+        <chunk item-count="1">
+            <reader ref="databaseItemReader">
+                <properties>
+                    <property name="companyId" value="#{jobParameters['companyId']}"/>
+                </properties>
+            </reader>
+            <writer ref="xmlItemWriter"/>
+        </chunk>
+    </step>
+</job>

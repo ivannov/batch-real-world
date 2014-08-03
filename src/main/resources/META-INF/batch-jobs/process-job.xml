@@ -5,8 +5,13 @@
         <property name="companyId" value="#{jobParameters['companyId']}"/>
     </properties>
 
-    <step id="moveFileStep" next="processFileFlow">
-        <batchlet ref="moveFileBatchlet"/>
+    <step id="moveFileToTempInput" next="processFileFlow">
+        <batchlet ref="moveFileBatchlet">
+            <properties>
+                <property name="from" value="FI"/>
+                <property name="to" value="FI_TMP"/>
+            </properties>
+        </batchlet>
     </step>
 
     <flow id="processFileFlow">
@@ -16,13 +21,21 @@
             <next on="*" to="processFileStep"/>
         </step>
 
-        <step id="processFileStep">
+        <step id="processFileStep" next="moveFileToOutput">
             <chunk item-count="10">
                 <reader ref="fileItemReader"/>
-                <processor ref="fileItemProcessor">
-                </processor>
+                <processor ref="fileItemProcessor"/>
                 <writer ref="fileItemWriter"/>
             </chunk>
+        </step>
+
+        <step id="moveFileToOutput">
+            <batchlet ref="moveFileBatchlet">
+                <properties>
+                    <property name="from" value="FI_TMP"/>
+                    <property name="to" value="FO"/>
+                </properties>
+            </batchlet>
         </step>
 
         <step id="processInvalidFileStep">

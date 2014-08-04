@@ -12,7 +12,9 @@ import javax.inject.Named;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
 
+import static java.util.logging.Logger.getLogger;
 import static org.apache.commons.io.FileUtils.getFile;
 import static org.apache.commons.io.FileUtils.listFiles;
 
@@ -30,8 +32,6 @@ public class RegisterCompanyFilesBatchlet extends AbstractBatchlet {
 
     @Override
     public String process() throws Exception {
-        System.out.println("RegisterCompanyFilesBatchlet.process");
-
         List<CompanyFolder> inputFolders = batchBusinessBean.findCompanyFoldersByType(FolderType.FI);
         inputFolders
                 .forEach(inputFolder -> getFiles(inputFolder)
@@ -41,7 +41,7 @@ public class RegisterCompanyFilesBatchlet extends AbstractBatchlet {
     }
 
     private void registerFile(CompanyFolder inputFolder, File file) {
-        System.out.println("Registering file to process " + file);
+        getLogger(this.getClass().getName()).log(Level.INFO, "Registering file to process " + file);
         batchBusinessBean.createCompanyFile(new CompanyFile(inputFolder.getId().getCompanyId(), file.getName()));
     }
 

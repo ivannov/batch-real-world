@@ -1,5 +1,7 @@
 package com.cortez.samples.batchrealworld.batch.finish;
 
+import com.cortez.samples.batchrealworld.entity.CompanyData;
+
 import javax.batch.api.chunk.AbstractItemWriter;
 import javax.inject.Named;
 import java.util.List;
@@ -9,8 +11,9 @@ import java.util.List;
  */
 @Named
 public class XmlItemWriter extends AbstractItemWriter {
+    @SuppressWarnings("unchecked")
     @Override
-    public void writeItems(List<Object> items) throws Exception {
-        System.out.println("XmlItemWriter.writeItems");
+    public void writeItems(List items) throws Exception {
+        List<List<CompanyData>> companyDataList = (List<List<CompanyData>>) items;
     }
 }

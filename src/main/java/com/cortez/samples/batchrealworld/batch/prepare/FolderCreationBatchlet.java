@@ -14,6 +14,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+
+import static java.util.logging.Logger.getLogger;
 
 /**
  * @author Roberto Cortez
@@ -32,8 +35,6 @@ public class FolderCreationBatchlet extends AbstractBatchlet {
 
     @Override
     public String process() throws Exception {
-        System.out.println("FolderCreationBatchlet.process");
-
         batchBusinessBean.findAllCompanies()
                          .stream()
                          .map(Company::getId)
@@ -50,7 +51,7 @@ public class FolderCreationBatchlet extends AbstractBatchlet {
 
         if (!folder.exists()) {
             try {
-                System.out.println("Creating folder " + folder);
+                getLogger(this.getClass().getName()).log(Level.INFO, "Creating folder " + folder);
                 FileUtils.forceMkdir(folder);
                 batchBusinessBean.createCompanyFolder(new CompanyFolder(companyId, folderType, folder.getPath()));
             } catch (IOException e) {

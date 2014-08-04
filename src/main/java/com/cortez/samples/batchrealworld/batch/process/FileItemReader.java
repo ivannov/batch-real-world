@@ -9,6 +9,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
+import java.util.logging.Level;
+
+import static java.util.logging.Level.*;
+import static java.util.logging.Logger.getLogger;
 
 /**
  * @author Roberto Cortez
@@ -21,13 +25,13 @@ public class FileItemReader extends AbstractFileProcess implements ItemReader {
     @Override
     public void open(Serializable checkpoint) throws Exception {
         fileToProcess = getFileToProcess(FolderType.FI_TMP);
-        System.out.println("Starting file to process: " + fileToProcess);
+        getLogger(this.getClass().getName()).log(INFO, "Starting file to process: " + fileToProcess);
         reader = Files.newBufferedReader(fileToProcess.toPath());
     }
 
     @Override
     public void close() throws Exception {
-        System.out.println("Finished file processing: " + fileToProcess);
+        getLogger(this.getClass().getName()).log(Level.INFO, "Finished file processing: " + fileToProcess);
         reader.close();
     }
 

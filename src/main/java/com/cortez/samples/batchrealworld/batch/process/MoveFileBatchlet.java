@@ -4,13 +4,12 @@ import com.cortez.samples.batchrealworld.entity.FolderType;
 
 import javax.batch.api.BatchProperty;
 import javax.batch.api.Batchlet;
-import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
+import java.util.logging.Level;
 
-import static com.cortez.samples.batchrealworld.entity.FolderType.FI;
-import static com.cortez.samples.batchrealworld.entity.FolderType.FI_TMP;
+import static java.util.logging.Logger.getLogger;
 import static org.apache.commons.io.FileUtils.moveFileToDirectory;
 
 /**
@@ -27,12 +26,10 @@ public class MoveFileBatchlet extends AbstractFileProcess implements Batchlet {
 
     @Override
     public String process() throws Exception {
-        System.out.println("MoveFilesBatchlet.process");
-
         File file = getFileToProcess(FolderType.valueOf(from));
         File destinationFolder = getFolder(FolderType.valueOf(to));
 
-        System.out.println("Moving file " + file + " to " + destinationFolder);
+        getLogger(this.getClass().getName()).log(Level.INFO, "Moving file " + file + " to " + destinationFolder);
         moveFileToDirectory(file, destinationFolder, false);
 
         return "COMPLETED";

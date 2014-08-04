@@ -6,8 +6,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.logging.Level;
 
 import static com.cortez.samples.batchrealworld.entity.FolderType.FI_TMP;
+import static java.util.logging.Logger.getLogger;
 
 /**
  * @author Roberto Cortez
@@ -16,10 +18,8 @@ import static com.cortez.samples.batchrealworld.entity.FolderType.FI_TMP;
 public class ValidationFileBatchlet extends AbstractFileProcess implements Batchlet {
     @Override
     public String process() throws Exception {
-        System.out.println("ValidationFileBatchlet.process");
-
         File file = getFileToProcess(FI_TMP);
-        System.out.println("Validating file" + file.getPath());
+        getLogger(this.getClass().getName()).log(Level.INFO, "Validating file" + file.getPath());
 
         String exitStatus = "ERROR";
         try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
